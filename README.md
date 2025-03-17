@@ -1,6 +1,6 @@
 # Long read data standardization SOP for downstream analysis
 ## Mike Nalls, Jon Moller, and Kimberley Billingsley
-Long read data standardization SOP for downstream analyses like QTLs
+This repository summarizes the CARD Applied Neurogenomics Group's long read sequencing data standardization SOP for downstream analyses like QTLs.
 # File formats and examples
 ## Metadata
 ## Omics
