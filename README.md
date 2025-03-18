@@ -1,5 +1,5 @@
 # Long read data standardization SOP for downstream analysis
-## Mike Nalls, Jon Moller, and Kimberley Billingsley
+## Mike Nalls, Jon Moller, Rylee Genner, Melissa Meredith, and Kimberley Billingsley
 This repository summarizes the CARD Applied Neurogenomics Group's long read sequencing data standardization SOP for downstream analyses like QTLs.
 # File formats and examples
 ## Metadata
