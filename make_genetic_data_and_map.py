@@ -67,7 +67,7 @@ def make_genetic_haplotype_matrix(variant_type,input_data_frame):
     # return genetic haplotype matrix data frame
     return(genetic_haplotype_matrix_df)
     
-parser = argparse.ArgumentParser(description="Convert preprocessed VCF input in CSV data table to genetic map and data matrix CSV for downstream analysis (e.g., QTLs).")
+parser = argparse.ArgumentParser(description="Convert preprocessed VCF input in CSV data table (from vcf_preprocess_for_genetic_data_map.sh) to genetic map and data matrix CSVs for downstream analysis (e.g., QTLs).")
 
 # Add argument for file type (SV or SNV) first
 parser.add_argument(
