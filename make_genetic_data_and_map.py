@@ -1,7 +1,7 @@
 #!/usr/bin/python 
 
 # make_genetic_data_and_map.py
-# script to convert bcftools query output from 
+# script to convert bcftools query output from vcf_preprocess_for_genetic_data_map.sh into genetic map and data for QTL
 
 import argparse
 import pandas as pd
