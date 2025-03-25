@@ -84,7 +84,7 @@ parser.add_argument(
     help="Path to the input preprocessed CSV file for parsing (from vcf_preprocess_for_genetic_data_map.sh)."
 )
 
-# Add argument for final output tsv file
+# Add argument for final output csv file
 parser.add_argument(
     "-o", "--output_prefix",
     required=True,
