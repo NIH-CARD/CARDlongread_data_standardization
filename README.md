@@ -9,10 +9,29 @@ This repository summarizes the CARD Applied Neurogenomics Group's long read sequ
 # Preprocessing scripts and usage
 ## Metadata
 ## Omics
+We have so far developed a script to convert methylation BED files from Napu into methylation data and map files as described above. This script takes methylation BED files for each haplotype as input and outputs methylation data and map files as CSV output. It is written to process CpG island (CGI), gene body (GB), and promoter (PROM) regions. It performs a full outer join on each haplotype (union of methylation regions) and fills in missing values in the respective haplotype as NA. Sample methylation data and map files are provided as example_methylation_data.csv and example_methylation_map.csv.
+```
+usage: make_methylation_data_and_map.py [-h] -t {CGI,GB,PROM} -h1 HAPLOTYPE_1 -h2 HAPLOTYPE_2 -p REGION_PREFIX -o OUTPUT_PREFIX
+
+Convert methylation BED files to methylation map and data matrix CSVs for downstream analysis (e.g., QTLs).
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t {CGI,GB,PROM}, --region_type {CGI,GB,PROM}
+                        Specifying region type for parsing and joining. Currently supported are CpG islands (CGI), gene bodies (GB), and promoters (PROM).
+  -h1 HAPLOTYPE_1, --haplotype_1 HAPLOTYPE_1
+                        Methylation BED file for the first haplotype (H1).
+  -h2 HAPLOTYPE_2, --haplotype_2 HAPLOTYPE_2
+                        Methylation BED file for the second haplotype (H2).
+  -p REGION_PREFIX, --region_prefix REGION_PREFIX
+                        Prefix for the output methylation region names (e.g., CGIs, gene bodies, promoters).
+  -o OUTPUT_PREFIX, --output_prefix OUTPUT_PREFIX
+                        Prefix for the output methylation data and genetic map files.
+```
 ## Genetic data
 Genetic data and maps are generated together in two steps. First, input SV or SNV VCF variant files from Napu are normalized to biallelic variants, subset by chromosome, and then converted to a CSV file with the necessary fields using bcftools query (`vcf_preprocess_for_genetic_data_map.sh`). Next, preprocessed CSV files are converted to per sample, per haplotype genetic data matrix and per variant genetic map files using `make_genetic_data_and_map.py`. Sample preprocessed data is included in the repository as example_sv_preprocess.csv and example_snv_preprocess.csv. Based on preliminary testing and available NIH HPC resources, we recommend parallelizing genetic map and data generation by chromosome. Tests on the HBCC cohort SNV VCF indicated chromosome 1 genetic map/data processing took 15 minutes on a 32GB RAM/32 CPU allocation. Example output genetic data are also provided as example_sv_data.csv and example_snv_data.csv.
 ```
-Usage: scripts/vcf_preprocess_for_genetic_data_map.sh -v variant_type -c chromosome -i input.vcf(.gz) -o output.csv
+Usage: vcf_preprocess_for_genetic_data_map.sh -v variant_type -c chromosome -i input.vcf(.gz) -o output.csv
 	-v Variant type - structural variants (SV) or single nucleotide variants (SNV)
 	-c Chromosome to subset (optional)
 	-i Input VCF file
