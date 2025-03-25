@@ -33,15 +33,19 @@ def join_relabeled_haplotype_beds(region_type,hap1_data_frame,hap2_data_frame):
         hap2_data_frame_corrected.columns=list(hap2_data_frame_corrected.columns[0:10])+list(hap2_data_frame_corrected.columns[10:] + "_H2")
         # use FULL outer join of each hap data frame to fill in missing methylation regions as NA in respective hap
         # join on region name corrected above in rename_methylation_regions (data_frame['name'])
-        joined_haps_data_frame=pd.merge(hap1_data_frame_corrected,hap2_data_frame_corrected,on=['chrom','start','end','name','length','cpgNum','cNum','perCpg','perGc','bsExp'],how='outer')
+        joined_haps_data_frame=pd.merge(hap1_data_frame_corrected,hap2_data_frame_corrected,on=['chrom','start','end','name','length','cpgNum','gcNum','perCpg','perGc','obsExp'],how='outer')
     elif (region_type=="GB"):
         # label sample columns as H1 for hap1 data frame - must remake whole column names list
         hap1_data_frame_corrected.columns=list(hap1_data_frame_corrected.columns[0:6])+list(hap1_data_frame_corrected.columns[6:] + "_H1")
+        # drop strand column - inconsistent between haplotypes in NABEC test...
+        hap1_data_frame_corrected=hap1_data_frame_corrected.drop('strand',axis=1)
         # label sample columns as H2 for hap2 data frame - must remake whole column names list
         hap2_data_frame_corrected.columns=list(hap2_data_frame_corrected.columns[0:6])+list(hap2_data_frame_corrected.columns[6:] + "_H2")
+        # drop strand column - inconsistent between haplotype in NABEC test...
+        hap2_data_frame_corrected=hap2_data_frame_corrected.drop('strand',axis=1)
         # use FULL outer join of each hap data frame to fill in missing methylation regions as NA in respective hap
         # join on region name corrected above in rename_methylation_regions (data_frame['name'])
-        joined_haps_data_frame=pd.merge(hap1_data_frame_corrected,hap2_data_frame_corrected,on=['chrom','start','end','name','dot','strand'],how='outer')
+        joined_haps_data_frame=pd.merge(hap1_data_frame_corrected,hap2_data_frame_corrected,on=['chrom','start','end','name','dot'],how='outer')
     elif (region_type=="PROM"):
         # label sample columns as H1 for hap1 data frame - must remake whole column names list
         hap1_data_frame_corrected.columns=list(hap1_data_frame_corrected.columns[0:6])+list(hap1_data_frame_corrected.columns[6:] + "_H1")
@@ -164,7 +168,7 @@ joined_relabeled_hap_df=join_relabeled_haplotype_beds(args.region_type,hap1_meth
 output_methylation_map_df=make_methylation_map(args.region_type,joined_relabeled_hap_df)
 # make methylation data matrix
 output_methylation_data_df=make_methylation_data(args.region_type,joined_relabeled_hap_df)
-# export methylation map
-output_methylation_map_df.to_csv(args.output_prefix+"_genetic_map.csv",index=False,header=True,na_rep="NA",chunksize=1000000)
-# export methylation data matrix
-output_methylation_data_df.to_csv(args.output_prefix+"_genetic_data.csv",index=False,header=True,na_rep="NA",chunksize=1000)
+# export methylation map as csv
+output_methylation_map_df.to_csv(args.output_prefix+"_methylation_map.csv",index=False,header=True,na_rep="NA",chunksize=1000000)
+# export methylation data matrix as csv
+output_methylation_data_df.to_csv(args.output_prefix+"_methylation_data.csv",index=False,header=True,na_rep="NA",chunksize=1000)
