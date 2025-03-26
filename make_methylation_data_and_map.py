@@ -144,7 +144,7 @@ parser.add_argument(
 parser.add_argument(
     "-o", "--output_prefix",
     required=True,
-    help="Prefix for the output methylation data and genetic map files."
+    help="Prefix for the output methylation data and methylation map files."
 )
 
 # Parse the arguments
