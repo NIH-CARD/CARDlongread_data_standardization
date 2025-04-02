@@ -41,6 +41,7 @@ indiv3,H2,90.0
 ## Genetic maps
 # Preprocessing scripts and usage
 ## Metadata
+Metadata scripts are still in development. These scripts will standardize calculation of PCs for omics regions per sample and joining with standard sample metadata tables (age, sex, ancestry, PMI, etc.).
 ## Omics
 We have so far developed a script to convert methylation BED files from Napu into methylation data and map files as described above. This script takes methylation BED files for each haplotype as input and outputs methylation data and map files as CSV output. It is written to process CpG island (CGI), gene body (GB), and promoter (PROM) regions. It performs a full outer join on each haplotype (union of methylation regions) and fills in missing values in the respective haplotype as NA. Sample methylation data and map files are provided as example_methylation_data.csv and example_methylation_map.csv.
 ```
