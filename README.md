@@ -37,8 +37,25 @@ indiv2,H2,55.25
 indiv3,H1,96.2
 indiv3,H2,90.0
 ```
-## Genetic data
-## Genetic maps
+## Genetics
+Genetics data is the count of alternate or non reference alleles for a SV or SNV per haplotype.
+
+Mandatory columns are as follows:  
+SAMPLE = sample ID in alphanumeric string format.  
+HAPLOTYPE = a string that denotes haplotype as “H1” or “H2”  
+Any additional columns are numeric columns corresponding to alternate allele count values of genetic sites or regions found in corresponding map files.  
+
+An example of one such file is below:
+```
+SAMPLE,HAPLOTYPE,chr1_111000_A_G,chr1_111555_T_CCCC
+indiv1,H1,0,1
+indiv1,H2,0,1
+indiv2,H1,1,1
+indiv2,H2,1,0
+indiv3,H1,0,0
+indiv3,H2,1,0
+```
+## Maps
 # Preprocessing scripts and usage
 ## Metadata
 Metadata scripts are still in development. These scripts will standardize calculation of PCs for omics regions per sample and joining with standard sample metadata tables (age, sex, ancestry, PMI, etc.).
