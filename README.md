@@ -66,7 +66,7 @@ STOP = integer region stop site, this will be the same as START for SNVs.
 REF = reference allele for the variant (note, not applicable and can be omitted for omics maps, only exists in genetics maps).  
 ALT = non-reference allele for the variant (note, not applicable and can be omitted for omics maps, only exists in genetics maps).  
 
-Regarding positions and alleles, the reference genome used should always be specified in the readme file.
+Regarding positions and alleles, the reference genome used should always be specified in the cohort readme file.
 
 Example genetics map file below:
 ```
