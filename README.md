@@ -56,6 +56,40 @@ indiv3,H1,0,0
 indiv3,H2,1,0
 ```
 ## Maps
+Map files are genome-wide maps in a standard format. Note that for genetic variants all START values are incorporated into variant names and for SNVs, the START and STOP values should be identical.
+
+Mandatory columns are as follows:  
+NAME = variant or region name as alphanumeric string.  
+CHROM = chromosome designation as described above prefixed by “chr”.  
+START = integer region start site.  
+STOP = integer region stop site, this will be the same as START for SNVs.  
+REF = reference allele for the variant (note, not applicable and can be omitted for omics maps, only exists in genetics maps).  
+ALT = non-reference allele for the variant (note, not applicable and can be omitted for omics maps, only exists in genetics maps).  
+
+Regarding positions and alleles, the reference genome used should always be specified in the readme file.
+
+Example genetics map file below:
+```
+NAME,CHROM,START,STOP,REF,ALT
+chr1_111000_A_G,chr1,111000,111000,A,G
+chr1_111555_T_CCCC,chr1,111555,111558,T,CCCC
+```
+
+Example omics map file below:
+```
+NAME,CHROM,START,STOP
+APOE,chr19,44905796,44909393
+```
+
+Example regions of interest map file below:
+```
+NAME,CHROM,START,STOP
+SORT1,chr1,109309574,109397918
+PMVK,chr1,154924739,154942658
+KRTCAP2,chr1,155169407,155173304
+GBAP1,chr1,155213824,155227534
+```
+
 # Preprocessing scripts and usage
 ## Metadata
 Metadata scripts are still in development. These scripts will standardize calculation of PCs for omics regions per sample and joining with standard sample metadata tables (age, sex, ancestry, PMI, etc.).
