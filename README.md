@@ -20,6 +20,23 @@ indiv2,1,PD ,R9,0.01,-0.003,0.006.0.0068,-0.4,
 indiv3,0,AD ,R10,0.3,-0.004,0.0065.0.08,0.002
 ```
 ## Omics
+All omics can be reduced to count tables.
+
+Mandatory columns are as follows:  
+SAMPLE = sample ID in alphanumeric string format.  
+HAPLOTYPE = a string that denotes haplotype as “H1” or “H2”  
+Any additional columns are numeric columns corresponding to likely normalized values of omics sites or regions found in corresponding map files.  
+
+An example of one such file is below:
+```
+SAMPLE,HAPLOTYPE,APOE
+indiv1,H1,5.0
+indiv1,H2,0.0
+indiv2,H1,99.5
+indiv2,H2,55.25
+indiv3,H1,96.2
+indiv3,H2,90.0
+```
 ## Genetic data
 ## Genetic maps
 # Preprocessing scripts and usage
