@@ -5,19 +5,20 @@ This repository summarizes the CARD Applied Neurogenomics Group's long read sequ
 ## Metadata
 Metadata files contain individual level data and potentially protected health information (PHI) so be cautious with sharing. In general these are sample level metrics not stratified by haplotype. 
 
-Mandatory columns are as follows:
-SAMPLE = sample ID in alphanumeric string format.
-MALE = binary indicator confirming XY sex chromosomes
-STATUS = disease of interest, controls for the population are always designated by the string value “control”.
-CHEMISTRY = an alphanumeric code for the chemistry used such as “R9” or “R10”.
-Any additional columns are considered covariates generally.
+Mandatory columns are as follows:  
+SAMPLE = sample ID in alphanumeric string format.  
+MALE = binary indicator confirming XY sex chromosomes  
+STATUS = disease of interest, controls for the population are always designated by the string value “control”.  
+CHEMISTRY = an alphanumeric code for the chemistry used such as “R9” or “R10”.  
+Any additional columns are considered covariates generally.  
 
 An example of one such file is below:
+```
 SAMPLE,MALE,STATUS,CHEMISTRY,PC1,PC2,PC3,PC4,PC5
 indiv1,1,control ,R9,0.001,-0.002,0.005.0.006,-0.1
 indiv2,1,PD ,R9,0.01,-0.003,0.006.0.0068,-0.4,
 indiv3,0,AD ,R10,0.3,-0.004,0.0065.0.08,0.002
-
+```
 ## Omics
 ## Genetic data
 ## Genetic maps
