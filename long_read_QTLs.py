@@ -6,6 +6,7 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 import argparse
 import os
+from collections import defaultdict
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Perform QTL analysis with user-specified parameters. Input data formats described in CARDlongread_data_standardization repository.")
@@ -33,6 +34,13 @@ def main():
     genetic_map = pd.read_csv(args.genetic_map)
     methylation_map = pd.read_csv(args.methylation_map)
     metadata = pd.read_csv(args.metadata)
+    # set types to reduce size of genetic/methylation data frames
+    # set presence/absence as 8 bit integers allowing NAs (Int8)
+    # genetic_data_types = defaultdict(lambda: "Int8", SAMPLE="str", HAPLOTYPE="str")
+    # import genetic and methylation data given NA as na value
+    genetic_data = pd.read_csv(args.genetic_data, na_values="NA") # (dtype=genetic_data_types)
+    # methylation data has floats so don't use data_types
+    methylation_data = pd.read_csv(args.methylation_data, na_values="NA")
     
     # Subset ROI map by chromosome
     roi_map = roi_map[roi_map['CHROM'] == args.chromosome]
@@ -58,10 +66,6 @@ def main():
         # if not os.path.exists(genetic_file):
             # print(f"Warning: Genetic file {genetic_file} not found. Skipping...")
             # continue
-        
-        # import genetic and methylation data given NA as na value
-        genetic_data = pd.read_csv(args.genetic_data, na_values="NA")
-        methylation_data = pd.read_csv(args.methylation_data, na_values="NA")
         
         # Process metadata (convert only non-numeric columns to dummy variables)
         covariates = metadata.drop(columns=['SAMPLE'])
