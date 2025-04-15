@@ -38,7 +38,8 @@ def main():
     # set presence/absence as 8 bit integers allowing NAs (Int8)
     # genetic_data_types = defaultdict(lambda: "Int8", SAMPLE="str", HAPLOTYPE="str")
     # import genetic and methylation data given NA as na value
-    genetic_data = pd.read_csv(args.genetic_data, na_values="NA") # (dtype=genetic_data_types)
+    # genetic_data = pd.read_csv(args.genetic_data, na_values="NA", dtype=genetic_data_types)
+    genetic_data = pd.read_csv(args.genetic_data, na_values="NA")
     # methylation data has floats so don't use data_types
     methylation_data = pd.read_csv(args.methylation_data, na_values="NA")
     
