@@ -13,8 +13,9 @@ import re
 def name_genetic_variants(variant_type,input_data_frame):
     # make variant names depending upon variant type
     # if structural variants, SV_CHROM_SVTYPE_START_STOP_SVLEN
+    # SVLEN given is absolute value (so positive number for both insertions and deletions)
     if (variant_type == "SV"):
-        variant_name="SV_"+input_data_frame['CHROM'].astype(str)+"_"+input_data_frame['SVTYPE']+"_"+input_data_frame['POS'].astype(str)+"_"+input_data_frame['END'].astype(str)+"_"+input_data_frame['SVLEN'].astype(str)
+        variant_name="SV_"+input_data_frame['CHROM'].astype(str)+"_"+input_data_frame['SVTYPE']+"_"+input_data_frame['POS'].astype(str)+"_"+input_data_frame['END'].astype(str)+"_"+input_data_frame['SVLEN'].abs().astype(str)
     # if single nucleotide variants, SNV_CHROM_START_STOP_REF_ALT
     elif (variant_type == "SNV"):
         variant_name="SNV_"+input_data_frame['CHROM'].astype(str)+"_"+input_data_frame['POS'].astype(str)+"_"+input_data_frame['REF']+"_"+input_data_frame['ALT']
