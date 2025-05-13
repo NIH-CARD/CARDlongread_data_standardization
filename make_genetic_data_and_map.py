@@ -12,12 +12,12 @@ import re
 # routine to name variants
 def name_genetic_variants(variant_type,input_data_frame):
     # make variant names depending upon variant type
-    # if structural variants, SV_CHROM_SVTYPE_START_STOP
+    # if structural variants, SV_CHROM_SVTYPE_START_STOP_SVLEN
     if (variant_type == "SV"):
-        variant_name="SV_"+input_data_frame['CHROM']+"_"+input_data_frame['SVTYPE']+"_"+input_data_frame['POS'].astype(str)+"_"+input_data_frame['END'].astype(str)
+        variant_name="SV_"+input_data_frame['CHROM'].astype(str)+"_"+input_data_frame['SVTYPE']+"_"+input_data_frame['POS'].astype(str)+"_"+input_data_frame['END'].astype(str)+"_"+input_data_frame['SVLEN'].astype(str)
     # if single nucleotide variants, SNV_CHROM_START_STOP_REF_ALT
     elif (variant_type == "SNV"):
-        variant_name="SNV_"+input_data_frame['CHROM']+"_"+input_data_frame['POS'].astype(str)+"_"+input_data_frame['REF']+"_"+input_data_frame['ALT']
+        variant_name="SNV_"+input_data_frame['CHROM'].astype(str)+"_"+input_data_frame['POS'].astype(str)+"_"+input_data_frame['REF']+"_"+input_data_frame['ALT']
     return(variant_name)
     
 # routine to process whole imported data frame into genetic map
@@ -40,6 +40,7 @@ def make_genetic_haplotype_matrix(variant_type,input_data_frame):
     # get sample names - exclude first six columns (ID, CHROM, POS, END, REF, ALT) - elements 0 through 5
     if (variant_type=='SNV'):
         sample_names=input_data_frame.columns.tolist()[6:]
+    # in the case of SVs, exclude first eight columns
     elif (variant_type=='SV'):
         sample_names=input_data_frame.columns.tolist()[8:]
     # prepare column names for haplotype matrix to be transposed and appended with sample name and haplotype info
