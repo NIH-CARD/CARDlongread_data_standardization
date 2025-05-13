@@ -64,7 +64,11 @@ CHROM = chromosome designation as described above prefixed by “chr”.
 START = integer region start site.  
 STOP = integer region stop site, this will be the same as START for SNVs.  
 REF = reference allele for the variant (note, not applicable and can be omitted for omics maps, only exists in genetics maps).  
-ALT = non-reference allele for the variant (note, not applicable and can be omitted for omics maps, only exists in genetics maps).  
+ALT = non-reference allele for the variant (note, not applicable and can be omitted for omics maps, only exists in genetics maps). 
+
+Variants are named in the NAME column above differently depending upon whether they are structural variants (SVs) or single nucleotide variants (SNVs).
+SNVs are named SNV_CHROM_START_STOP_REF_ALT with each field defined in the columns above (e.g., SNV_chr16_53368720_C_CTGTT).
+SVs, on the other hand, are named SV_CHROM_SVTYPE_START_STOP_SVLEN where SVTYPE is the type of SV (e.g., INS, DEL) and SVLEN is the absolute value of the SV length (e.g., 94 for -94). An example SV name is SV_chr19_DEL_54471870_54471945_75.
 
 Regarding positions and alleles, the reference genome used should always be specified in the cohort readme file.
 
