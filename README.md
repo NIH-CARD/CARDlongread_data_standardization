@@ -100,6 +100,12 @@ Metadata scripts are still in development. These scripts will standardize calcul
 
 Included are scripts to guide the exploratory data analysis (EDA) process, particularly calculation of PCs, evaluation of PC contribution through stepwise regression, and merging with covariates. We have written two scripts to perform principal component analysis on different types of data (e.g., genetic variants, methylation, gene expression) and then join chosen principal components with a standard sample metadata table. The first script (```make_pcs_stepwise.py```) runs PCA on different input data types and creates scree plots to assist choice of PCs that explain most of the variation in the data. It includes options for each data type and for the PC prefix (e.g., GENETIC_ and thus GENETIC_PC for PCs from genetic variant data). The second script (```choose_pcs_join_metadata.py```) takes a list of input PC files from the first script and a list of values that indicate the number of PCs to include (starting from PC_1) from each PC file. 
 
+Genetic PCs can be generated from a MAF filtered variant file with plink through the following command, which keeps the first 20 PCs:
+
+```plink2 --vcf example_variants.vcf.gz --pca 20 --out example_variants_PCA_20```
+
+This generates PCs in eigenvector file ```example_variants_PCA_20.eigenvec``` and a list of variance explained per included PC in the eigenvalue file ```example_variants_PCA_20.eigenval```.
+
 ## Omics
 We have so far developed a script to convert methylation BED files from Napu into methylation data and map files as described above. This script takes methylation BED files for each haplotype as input and outputs methylation data and map files as CSV output. It is written to process CpG island (CGI), gene body (GB), and promoter (PROM) regions. It performs a full outer join on each haplotype (union of methylation regions) and fills in missing values in the respective haplotype as NA. Sample methylation data and map files are provided as example_methylation_data.csv and example_methylation_map.csv.
 ```
