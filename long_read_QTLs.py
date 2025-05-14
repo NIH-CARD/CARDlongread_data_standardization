@@ -38,8 +38,7 @@ def main():
     # set presence/absence as 8 bit integers allowing NAs (Int8)
     # genetic_data_types = defaultdict(lambda: "Int8", SAMPLE="str", HAPLOTYPE="str")
     # import genetic and methylation data given NA as na value
-    # genetic_data = pd.read_csv(args.genetic_data, na_values="NA", dtype=genetic_data_types)
-    genetic_data = pd.read_csv(args.genetic_data, na_values="NA")
+    genetic_data = pd.read_csv(args.genetic_data, na_values="NA") #(dtype=genetic_data_types)
     # methylation data has floats so don't use data_types
     methylation_data = pd.read_csv(args.methylation_data, na_values="NA")
     
@@ -77,8 +76,10 @@ def main():
         numeric_vars = covariates.drop(columns=non_numeric_cols)
         metadata_reformed = pd.concat([metadata[['SAMPLE']], numeric_vars, dummy_vars], axis=1)
         
-        # Merge all data - merge genetic data, methylation data, and metadata on SAMPLE column
-        merged_data = genetic_data.merge(methylation_data, on='SAMPLE').merge(metadata_reformed, on='SAMPLE')
+        # Merge all data - merge genetic data, methylation data, and metadata on SAMPLE and HAPLOTYPE columns (genetics + methylation)
+        # This is based on the assumption that for each sample, genetics H1 and methylation H1 match
+        # In future offer command line option to examine all haplotype combinations per sample, or trans haplotype combos
+        merged_data = genetic_data.merge(methylation_data, on=['SAMPLE','HAPLOTYPE']).merge(metadata_reformed, on='SAMPLE')
         
         # Subset to relevant columns
         # I think TARGET is the name of the methylation region
@@ -109,7 +110,7 @@ def main():
                         'predictor_freq': merged_data[predictor].mean(skipna=True)
                     })
                     
-                    print(model.summary())
+                    # print(model.summary())
                 except Exception as e:
                     print(f"Regression failed for {outcome} ~ {predictor}: {e}")
     
