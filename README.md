@@ -102,6 +102,46 @@ Included are scripts to guide the exploratory data analysis (EDA) process, parti
 
 The second script (```choose_pcs_join_metadata.py```) takes a metadata table (e.g., sample, age, sex, PMI, ancestry), list of input PC files generated with ```make_pcs_stepwise.py```, and a list of values that indicate the number of PCs to include (starting from PC_1) from each PC file. These values are chosen based on inspection of the previous scree plots and output of the prior script indicating the minimum number of PCs starting with PC1 that together explain at least the cumulative variance cutoff (0.7 default). 
 
+```
+usage: make_pcs_stepwise.py [-h] --input_type INPUT_TYPE --input INPUT --output_prefix OUTPUT_PREFIX --pc_prefix PC_PREFIX [--cumulative_variance_explained_cutoff CUMULATIVE_VARIANCE_EXPLAINED_CUTOFF] [--plot_title PLOT_TITLE]
+                            [--new_sample_names NEW_SAMPLE_NAMES]
+
+Perform exploratory data analysis (EDA) by running PCA for 20 PCs on input data (genetics, methylation, or expression) and generating a scree plot to assist selection of PCs.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --input_type INPUT_TYPE
+                        Input file type (currently genetics, methylation, or expression). Genetics input is Plink eigenvalue/eigenvector files generated with the --pca 20 option, while methylation input is a methylation BED file and
+                        expression input is a normalized expression BED file.
+  --input INPUT         Path to input genetics file prefix (for both Plink eigenvalue/eigenvector) or methylation/expression input file.
+  --output_prefix OUTPUT_PREFIX
+                        Prefix for PC and scree plot output files.
+  --pc_prefix PC_PREFIX
+                        Prefix for PC names (e.g., METH_PC1).
+  --cumulative_variance_explained_cutoff CUMULATIVE_VARIANCE_EXPLAINED_CUTOFF
+                        Horizontal cutoff line for cumulative variance explained in scree plot (default 0.70). PC that exceeds threshold printed to standard output.
+  --plot_title PLOT_TITLE
+                        Title for output scree plot.
+  --new_sample_names NEW_SAMPLE_NAMES
+                        Path to list of new sample names for output PC file. Must have same number of samples as input data file.
+```
+```
+usage: choose_pcs_join_metadata.py [-h] --input_metadata INPUT_METADATA --input_pcs INPUT_PCS [INPUT_PCS ...] --pc_counts PC_COUNTS [PC_COUNTS ...] --output_prefix OUTPUT_PREFIX
+
+Choose PCs from multiple input PC files and merge chosen PCs with metadata/covariates table.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --input_metadata INPUT_METADATA
+                        Path to initial input metadata/covariates file to be joined with PCs of interest.
+  --input_pcs INPUT_PCS [INPUT_PCS ...]
+                        Path to input PC files generated or preprocessed with make_pcs_stepwise.py.
+  --pc_counts PC_COUNTS [PC_COUNTS ...]
+                        Number of PCs starting with PC1 to retain for input PC files, in order of inputs specified for --input_pcs.
+  --output_prefix OUTPUT_PREFIX
+                        Specify prefix for output merged metadata/covariates/PCs file and covariate correlation heatmap.
+```
+
 Genetic PCs can be generated from a MAF filtered variant file with plink through the following command, which keeps the first 20 PCs:
 
 ```plink2 --vcf example_variants.vcf.gz --pca 20 --out example_variants_PCA_20```
