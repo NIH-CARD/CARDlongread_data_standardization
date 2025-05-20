@@ -8,6 +8,7 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.impute import SimpleImputer
 import matplotlib.pyplot as plt
+import argparse
 
 # parse command line arguments
 def parse_args():
