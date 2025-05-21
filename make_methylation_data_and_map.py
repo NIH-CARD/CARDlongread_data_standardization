@@ -8,6 +8,21 @@ import numpy as np
 import os
 import re
 
+# routine to filter initial methylation bed by missing information rate
+def filter_regions_by_missing_info_rate(region_type,input_data_frame,missing_info_rate):
+    if (region_type=="CGI"):
+        # calculate missing information rate for each row
+        df_missing_info_rates=input_data_frame.iloc[:,10:].isna().sum(axis=1)/input_data_frame.iloc[:,10:].shape[1]
+        # subset data frame based on missing information rate
+        filtered_data_frame=input_data_frame[df_missing_info_rates < missing_info_rate]
+    else:
+        # calculate missing information rate for each row
+        df_missing_info_rates=input_data_frame.iloc[:,6:].isna().sum(axis=1)/input_data_frame.iloc[:,6:].shape[1]
+        # subset data frame based on missing information rate
+        filtered_data_frame=input_data_frame[df_missing_info_rates < missing_info_rate]
+    # return filtered bed lacking regions with missing methylation information for proportion of samples above missing information rate
+    return(filtered_data_frame)
+
 # routine to rename methylation regions for each haplotype uniquely
 def rename_methylation_regions(input_data_frame,region_prefix):
     # create copy of data frame so original is left unchanged
@@ -26,6 +41,22 @@ def join_relabeled_haplotype_beds(region_type,hap1_data_frame,hap2_data_frame):
     # correct names of columns (e.g, remove avgMod_ prefix from column names)
     hap1_data_frame_corrected.columns = hap1_data_frame_corrected.columns.str.removeprefix("avgMod_") 
     hap2_data_frame_corrected.columns = hap2_data_frame_corrected.columns.str.removeprefix("avgMod_")
+    # correct names of columns in alternate case (e.g., remove _GRCh38_1_modFraction suffix from column names)
+    hap1_data_frame_corrected.columns = hap1_data_frame_corrected.columns.str.removesuffix("_GRCh38_1_modFraction") 
+    hap2_data_frame_corrected.columns = hap2_data_frame_corrected.columns.str.removesuffix("_GRCh38_1_modFraction")
+    # change chromStart and chromEnd to start and end if necessary
+    if ('chromStart' in hap1_data_frame_corrected.columns) and ('chromEnd' in hap1_data_frame_corrected.columns):
+        hap1_data_frame_corrected.rename(columns={'chromStart': 'start', 'chromEnd' : 'end'}, inplace=True)
+    # repeat process for hap2_data_frame_corrected
+    if ('chromStart' in hap2_data_frame_corrected.columns) and ('chromEnd' in hap2_data_frame_corrected.columns):
+        hap2_data_frame_corrected.rename(columns={'chromStart': 'start', 'chromEnd' : 'end'}, inplace=True)
+    # fix #chrom column to chrom
+    if ('#chrom' in hap1_data_frame_corrected.columns):
+        hap1_data_frame_corrected.rename(columns={'#chrom': 'chrom'}, inplace=True)
+    # repeat process for hap2_data_frame_corrected
+    if ('#chrom' in hap2_data_frame_corrected.columns):
+        hap2_data_frame_corrected.rename(columns={'#chrom': 'chrom'}, inplace=True)
+    # labeling, column drop, and joining depending on region
     if (region_type=="CGI"):
         # label sample columns as H1 for hap1 data frame - must remake whole column names list
         hap1_data_frame_corrected.columns=list(hap1_data_frame_corrected.columns[0:10])+list(hap1_data_frame_corrected.columns[10:] + "_H1")
@@ -144,15 +175,30 @@ parser.add_argument(
 parser.add_argument(
     "-o", "--output_prefix",
     required=True,
-    help="Prefix for the output methylation data and methylation map files."
+    help="Prefix for the output methylation data and genetic map files."
+)
+
+# Add argument for missingness filter
+parser.add_argument(
+    "-m", "--missing_info_rate",
+    required=False,
+    default=0.05,
+    help="Filter out regions lacking methylation information for higher than this proportion of samples (default 0.05 or 5%)."
 )
 
 # Parse the arguments
 args = parser.parse_args() 
 # import haplotype 1 methylation bed file
-hap1_meth_bed=pd.read_csv(args.haplotype_1,sep="\t")
+# include period as NA value
+hap1_meth_bed=pd.read_csv(args.haplotype_1,sep="\t",na_values=['.'])
 # import haplotype 2 methylation bed file
-hap2_meth_bed=pd.read_csv(args.haplotype_2,sep="\t")
+# include period as NA value
+hap2_meth_bed=pd.read_csv(args.haplotype_2,sep="\t",na_values=['.'])
+# filter out regions with missing information rate over parameter
+# default rate is 5% missing or less
+hap1_meth_bed=filter_regions_by_missing_info_rate(args.region_type,hap1_meth_bed,args.missing_info_rate)
+hap2_meth_bed=filter_regions_by_missing_info_rate(args.region_type,hap2_meth_bed,args.missing_info_rate)
+# rename methylation regions
 if (args.region_type=="CGI" or args.region_type=="GB"):
     # rename haplotype 1 methylation regions
     hap1_meth_bed_renamed=rename_methylation_regions(hap1_meth_bed,args.region_prefix)
