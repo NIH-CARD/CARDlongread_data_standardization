@@ -43,7 +43,7 @@ def join_relabeled_haplotype_beds(region_type,hap1_data_frame,hap2_data_frame):
     hap2_data_frame_corrected.columns = hap2_data_frame_corrected.columns.str.removeprefix("avgMod_")
     # correct names of columns in alternate case (e.g., remove _GRCh38_1_modFraction suffix from column names)
     hap1_data_frame_corrected.columns = hap1_data_frame_corrected.columns.str.removesuffix("_GRCh38_1_modFraction") 
-    hap2_data_frame_corrected.columns = hap2_data_frame_corrected.columns.str.removesuffix("_GRCh38_1_modFraction")
+    hap2_data_frame_corrected.columns = hap2_data_frame_corrected.columns.str.removesuffix("_GRCh38_2_modFraction")
     # change chromStart and chromEnd to start and end if necessary
     if ('chromStart' in hap1_data_frame_corrected.columns) and ('chromEnd' in hap1_data_frame_corrected.columns):
         hap1_data_frame_corrected.rename(columns={'chromStart': 'start', 'chromEnd' : 'end'}, inplace=True)
@@ -183,8 +183,7 @@ parser.add_argument(
     "-m", "--missing_info_rate",
     required=False,
     default=0.05,
-    type=float,
-    help="Filter out regions lacking methylation information for higher than this proportion of samples (default 0.05 or 5%%)."
+    help="Filter out regions lacking methylation information for higher than this proportion of samples (default 0.05 or 5%)."
 )
 
 # Parse the arguments
