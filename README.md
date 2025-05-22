@@ -149,9 +149,9 @@ Genetic PCs can be generated from a MAF filtered variant file with plink through
 This generates PCs in eigenvector file ```example_variants_PCA_20.eigenvec``` and a list of variance explained per included PC in the eigenvalue file ```example_variants_PCA_20.eigenval```.
 
 ## Omics
-We have so far developed a script to convert methylation BED files from Napu into methylation data and map files as described above. This script takes methylation BED files for each haplotype as input and outputs methylation data and map files as CSV output. It is written to process CpG island (CGI), gene body (GB), and promoter (PROM) regions. It performs a full outer join on each haplotype (union of methylation regions) and fills in missing values in the respective haplotype as NA. Sample methylation data and map files are provided as example_methylation_data.csv and example_methylation_map.csv.
+We have so far developed a script to convert methylation BED files from Napu into methylation data and map files as described above. This script takes methylation BED files for each haplotype as input and outputs methylation data and map files as CSV output. It is written to process CpG island (CGI), gene body (GB), and promoter (PROM) regions. It performs a full outer join on each haplotype (union of methylation regions) and fills in missing values in the respective haplotype as NA. An option is also provided to filter out regions with missing methylation information above a threshold proportion of samples (default 0.05 or 5%; missing methylation typing rate equivalent to missing genotyping rate). Sample methylation data and map files are provided as example_methylation_data.csv and example_methylation_map.csv.
 ```
-usage: make_methylation_data_and_map.py [-h] -t {CGI,GB,PROM} -h1 HAPLOTYPE_1 -h2 HAPLOTYPE_2 -p REGION_PREFIX -o OUTPUT_PREFIX
+usage: make_methylation_data_and_map.py [-h] -t {CGI,GB,PROM} -h1 HAPLOTYPE_1 -h2 HAPLOTYPE_2 -p REGION_PREFIX -o OUTPUT_PREFIX [-m MISSING_INFO_RATE]
 
 Convert methylation BED files to methylation map and data matrix CSVs for downstream analysis (e.g., QTLs).
 
@@ -167,6 +167,8 @@ optional arguments:
                         Prefix for the output methylation region names (e.g., CGIs, gene bodies, promoters).
   -o OUTPUT_PREFIX, --output_prefix OUTPUT_PREFIX
                         Prefix for the output methylation data and genetic map files.
+  -m MISSING_INFO_RATE, --missing_info_rate MISSING_INFO_RATE
+                        Filter out regions lacking methylation information for higher than this proportion of samples (default 0.05 or 5%).
 ```
 ## Genetic data
 Genetic data and maps are generated together in two steps. First, input SV or SNV VCF variant files from Napu are normalized to biallelic variants, subset by chromosome, and then converted to a CSV file with the necessary fields using bcftools query (`vcf_preprocess_for_genetic_data_map.sh`). Next, preprocessed CSV files are converted to per sample, per haplotype genetic data matrix and per variant genetic map files using `make_genetic_data_and_map.py`. Sample preprocessed data is included in the repository as example_sv_preprocess.csv and example_snv_preprocess.csv. Based on preliminary testing and available NIH HPC resources, we recommend parallelizing genetic map and data generation by chromosome. Tests on the HBCC cohort SNV VCF indicated chromosome 1 genetic map/data processing took 15 minutes on a 32GB RAM/32 CPU allocation. Example output genetic data are also provided as example_sv_data.csv and example_snv_data.csv.
