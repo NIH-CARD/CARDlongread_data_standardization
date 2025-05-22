@@ -183,7 +183,8 @@ parser.add_argument(
     "-m", "--missing_info_rate",
     required=False,
     default=0.05,
-    help="Filter out regions lacking methylation information for higher than this proportion of samples (default 0.05 or 5%)."
+    type=float,
+    help="Filter out regions lacking methylation information for higher than this proportion of samples (default 0.05 or 5%%)."
 )
 
 # Parse the arguments
