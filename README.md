@@ -223,7 +223,7 @@ Input variant files can have variants relabeled accordingly with the following `
 # SNVs
 bcftools annotate -I 'SNV\_%CHROM\_%POS\_%REF\_%ALT' input.vcf
 # SVs
-bcftools annotate -I 'SV\_%CHROM\_%POS\_%START\_%END\_ABS(%SVLEN)' input.vcf
+bcftools annotate -I 'SV\_%CHROM\_%SVTYPE\_%START\_%END\_ABS(%SVLEN)' input.vcf
 ```
 ## Genetic maps
 Genetic maps are made together with genetic data above. Sample output genetic maps corresponding to above genetic data are included in the repository as example_sv_genetic_map.csv and example_snv_genetic_map.csv.
