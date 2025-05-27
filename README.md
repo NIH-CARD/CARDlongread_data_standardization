@@ -218,5 +218,10 @@ optional arguments:
   -c CHROMOSOME, --chromosome CHROMOSOME
                         Chromosome(s) to include (optional).
 ```
+Input variant files can have variants relabeled accordingly with the following ```bcftools annotate``` commands:
+```
+# SNVs
+# SVs
+```
 ## Genetic maps
 Genetic maps are made together with genetic data above. Sample output genetic maps corresponding to above genetic data are included in the repository as example_sv_genetic_map.csv and example_snv_genetic_map.csv.
