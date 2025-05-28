@@ -27,6 +27,9 @@ def filter_regions_by_missing_info_rate(region_type,input_data_frame,missing_inf
 def rename_methylation_regions(input_data_frame,region_prefix):
     # create copy of data frame so original is left unchanged
     renamed_data_frame=input_data_frame.copy()
+    # fix #chrom column to chrom
+    if ('#chrom' in input_data_frame.columns):
+        input_data_frame.rename(columns={'#chrom': 'chrom'}, inplace=True)
     # make new region name in following format: "PREFIX_CHROM_START_STOP"
     new_region_name=region_prefix + "_" + input_data_frame['chrom'] + "_" + input_data_frame['start'].astype(str) + "_" + input_data_frame['end'].astype(str)
     # replace name column with standardized region name
@@ -86,6 +89,12 @@ def join_relabeled_haplotype_beds(region_type,hap1_data_frame,hap2_data_frame):
         hap2_data_frame_corrected.columns=list(hap2_data_frame_corrected.columns[0:6])+list(hap2_data_frame_corrected.columns[6:] + "_H2")
         # drop strand column - inconsistent between haplotype in HBCC test...
         hap2_data_frame_corrected=hap2_data_frame_corrected.drop('strand',axis=1)
+        # fix gene column to promoter_name
+        if ('gene' in hap1_data_frame_corrected.columns):
+            hap1_data_frame_corrected.rename(columns={'gene': 'promoter_name'}, inplace=True)
+        # repeat process for hap2_data_frame_corrected
+        if ('gene' in hap2_data_frame_corrected.columns):
+            hap2_data_frame_corrected.rename(columns={'gene': 'promoter_name'}, inplace=True)
         # use FULL outer join of each hap data frame to fill in missing methylation regions as NA in respective hap
         # join on region name corrected above in rename_methylation_regions (data_frame['name'])
         joined_haps_data_frame=pd.merge(hap1_data_frame_corrected,hap2_data_frame_corrected,on=['chrom','start','end','promoter_name','number'],how='outer')
@@ -183,7 +192,7 @@ parser.add_argument(
     "-m", "--missing_info_rate",
     required=False,
     default=0.05,
-    help="Filter out regions lacking methylation information for higher than this proportion of samples (default 0.05 or 5%)."
+    help="Filter out regions lacking methylation information for higher than this proportion of samples (default 0.05 or 5%%)."
 )
 
 # Parse the arguments
