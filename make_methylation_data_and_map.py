@@ -30,6 +30,9 @@ def rename_methylation_regions(input_data_frame,region_prefix):
     # fix #chrom column to chrom
     if ('#chrom' in input_data_frame.columns):
         input_data_frame.rename(columns={'#chrom': 'chrom'}, inplace=True)
+    # change chromStart and chromEnd to start and end if necessary
+    if ('chromStart' in input_data_frame.columns) and ('chromEnd' in input_data_frame.columns):
+        input_data_frame.rename(columns={'chromStart': 'start', 'chromEnd' : 'end'}, inplace=True)    
     # make new region name in following format: "PREFIX_CHROM_START_STOP"
     new_region_name=region_prefix + "_" + input_data_frame['chrom'] + "_" + input_data_frame['start'].astype(str) + "_" + input_data_frame['end'].astype(str)
     # replace name column with standardized region name
