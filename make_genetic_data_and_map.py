@@ -68,7 +68,37 @@ def make_genetic_haplotype_matrix(variant_type,input_data_frame):
     genetic_haplotype_matrix_df.replace('.', np.nan, inplace=True)
     # return genetic haplotype matrix data frame
     return(genetic_haplotype_matrix_df)
+
+# routine to process whole imported data frame into output unphased genotype matrix
+def make_genotype_matrix(variant_type,input_data_frame):
+    # get sample names - exclude first six columns (ID, CHROM, POS, END, REF, ALT) - elements 0 through 5
+    if (variant_type=='SNV'):
+        sample_names=input_data_frame.columns.tolist()[6:]
+    # in the case of SVs, exclude first eight columns
+    elif (variant_type=='SV'):
+        sample_names=input_data_frame.columns.tolist()[8:]
+    # prepare initial untransposed haplotype matrix
+    transposed_genotype_matrix_df = pd.DataFrame(dtype='Int64',columns=sample_names)
+    # split genotypes per sample and sum them if neither are NA (otherwise NA output)
+    for i in sample_names:
+        # split by EITHER "/" or "|" (e.g., 0/1 or 0|1)
+        # convert to 0, 1, 2 only if both alleles have values (no NAs)
+        transposed_genotype_matrix_df[i]=input_data_frame[i].str.split(r"\/|\|",expand=True).replace('.',np.nan).apply(pd.to_numeric).sum(axis=1,min_count=2)
+    # transpose data frame into final output
+    genotype_matrix_df=transposed_genotype_matrix_df.transpose()
+    # remove original data frame to save memory
+    del(transposed_genotype_matrix_df)
+    # name variants depending upon variant type AFTER transpose; make column names match these variant names
+    genotype_matrix_df.columns=name_genetic_variants(variant_type,input_data_frame)
+    # add sample column
+    # sample list - two of each sample name given two haplotypes
+    genotype_matrix_df.insert(loc=0,column='SAMPLE',value=sample_names)
+    # replace periods with NAs if necessary
+    genotype_matrix_df.replace('.', np.nan, inplace=True)
+    # return genetic haplotype matrix data frame
+    return(genotype_matrix_df)
     
+# parse command line arguments
 parser = argparse.ArgumentParser(description="Convert preprocessed VCF input in CSV data table (from vcf_preprocess_for_genetic_data_map.sh) to genetic map and data matrix CSVs for downstream analysis (e.g., QTLs).")
 
 # Add argument for file type (SV or SNV) first
@@ -77,6 +107,15 @@ parser.add_argument(
     required=True,
     choices=["SV", "SNV"],
     help="Specify the file type: SVs for Structural Variants or SNVs for Single Nucleotide Variants."
+)
+
+# Add argument for making unphased genotypes
+parser.add_argument(
+    "-un", "--unphased",
+    required=False,
+    action=argparse.BooleanOptionalAction, 
+    default=False,
+    help="Specify whether to create unphased genotype data (0, 1, or 2 per sample for homozygous reference, heterozygous, and homozygous alternate, respectively)."
 )
 
 # Add argument for input file
@@ -109,8 +148,12 @@ if (args.chromosome is not None):
     vcf_preprocess_df=vcf_preprocess_df[vcf_preprocess_df['CHROM']==args.chromosome]
 # make genetic map
 output_genetic_map_df=make_genetic_map(args.file_type,vcf_preprocess_df)
-# make genetic data
-output_genetic_data_df=make_genetic_haplotype_matrix(args.file_type,vcf_preprocess_df)
+if (args.unphased is False):
+    # make phased genetic data
+    output_genetic_data_df=make_genetic_haplotype_matrix(args.file_type,vcf_preprocess_df)
+else:
+    # make unphased genetic data
+    output_genetic_data_df=make_genotype_matrix(args.file_type,vcf_preprocess_df)
 # export genetic map as CSV
 # 1e6 lines at a time
 output_genetic_map_df.to_csv(args.output_prefix+"_genetic_map.csv",index=False,header=True,na_rep="NA",chunksize=1000000)

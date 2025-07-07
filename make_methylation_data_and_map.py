@@ -39,6 +39,41 @@ def rename_methylation_regions(input_data_frame,region_prefix):
     renamed_data_frame['name']=new_region_name
     return(renamed_data_frame)
 
+# routine to reformat unphased methylation data
+def reformat_unphased_methylation_beds(region_type,unphased_data_frame):
+    # create copy of data frame so original is left unchanged
+    unphased_data_frame_corrected = unphased_data_frame.copy()
+    # correct names of columns (e.g, remove avgMod_ prefix from column names)
+    unphased_data_frame_corrected.columns = unphased_data_frame_corrected.columns.str.removeprefix("avgMod_")
+    # correct names of columns in alternate case (e.g., remove _GRCh38_1_modFraction suffix from column names)
+    unphased_data_frame_corrected.columns = unphased_data_frame_corrected.columns.str.removesuffix("_GRCh38_1_modFraction") 
+    unphased_data_frame_corrected.columns = unphased_data_frame_corrected.columns.str.removesuffix("_GRCh38_2_modFraction")
+    # change chromStart and chromEnd to start and end if necessary
+    if ('chromStart' in unphased_data_frame_corrected.columns) and ('chromEnd' in unphased_data_frame_corrected.columns):
+        unphased_data_frame_corrected.rename(columns={'chromStart': 'start', 'chromEnd' : 'end'}, inplace=True)
+    # fix #chrom column to chrom
+    if ('#chrom' in unphased_data_frame_corrected.columns):
+        unphased_data_frame_corrected.rename(columns={'#chrom': 'chrom'}, inplace=True)
+    # labeling, column drop, and joining depending on region
+    if (region_type=="CGI"):
+        # easy peasy conversion
+        reformatted_unphased_data_frame=unphased_data_frame_corrected
+    elif (region_type=="GB"):
+        # drop strand column - inconsistent between haplotypes in NABEC test...
+        unphased_data_frame_corrected=unphased_data_frame_corrected.drop('strand',axis=1)
+        # now output final table
+        reformatted_unphased_data_frame=unphased_data_frame_corrected
+    elif (region_type=="PROM"):
+        # drop strand column - inconsistent between haplotypes in HBCC test...
+        unphased_data_frame_corrected=unphased_data_frame_corrected.drop('strand',axis=1)
+        # fix gene column to promoter_name
+        if ('gene' in unphased_data_frame_corrected.columns):
+            unphased_data_frame_corrected.rename(columns={'gene': 'promoter_name'}, inplace=True)
+        # now output final table
+        reformatted_unphased_data_frame=unphased_data_frame_corrected
+    # return reformatted unphased data
+    return(reformatted_unphased_data_frame)
+
 # routine to relabel and outer join per haplotype bed files 
 def join_relabeled_haplotype_beds(region_type,hap1_data_frame,hap2_data_frame):
     # create copies of data frames so original is left unchanged
@@ -118,7 +153,7 @@ def make_methylation_map(region_type,joined_haps_data_frame):
     return(methylation_map_df)
 
 # routine to prepare methylation data matrix data frame from input methylation BED file(s)
-def make_methylation_data(region_type,joined_haps_data_frame):
+def make_methylation_data(region_type,phased,joined_haps_data_frame):
     # initialize data frame
     transposed_methylation_data_df=pd.DataFrame()
     # get column names for final matrix (region names from haplotype joined, sample relabeled, region renamed data frame)
@@ -139,16 +174,26 @@ def make_methylation_data(region_type,joined_haps_data_frame):
     methylation_data_df.columns=methylation_data_col_names
     # turn index to column
     methylation_data_df['INDEX']=methylation_data_df.index
-    # add haplotype column
-    # add sample column
-    methylation_data_df[['SAMPLE','HAPLOTYPE']] = methylation_data_df['INDEX'].str.rsplit("_",n=1,expand=True)
-    # drop index column
-    methylation_data_df=methylation_data_df.drop('INDEX',axis=1)
-    # move sample and haplotype columns to first two columns
-    methylation_data_df.insert(0, 'HAPLOTYPE', methylation_data_df.pop('HAPLOTYPE'))
-    methylation_data_df.insert(0, 'SAMPLE', methylation_data_df.pop('SAMPLE'))
-    # sort by BOTH sample and haplotype values (e.g., HBCC_81925_FTX,H1 then HBCC_81925_FTX,H2, then next sample)
-    methylation_data_df=methylation_data_df.sort_values(by=["SAMPLE","HAPLOTYPE"])
+    if (phased is True):
+        # add haplotype column
+        # add sample column
+        methylation_data_df[['SAMPLE','HAPLOTYPE']] = methylation_data_df['INDEX'].str.rsplit("_",n=1,expand=True)
+        # drop index column
+        methylation_data_df=methylation_data_df.drop('INDEX',axis=1)
+        # move sample and haplotype columns to first two columns
+        methylation_data_df.insert(0, 'HAPLOTYPE', methylation_data_df.pop('HAPLOTYPE'))
+        methylation_data_df.insert(0, 'SAMPLE', methylation_data_df.pop('SAMPLE'))
+        # sort by BOTH sample and haplotype values (e.g., HBCC_81925_FTX,H1 then HBCC_81925_FTX,H2, then next sample)
+        methylation_data_df=methylation_data_df.sort_values(by=["SAMPLE","HAPLOTYPE"])
+    else:
+        # add sample column
+        methylation_data_df['SAMPLE'] = methylation_data_df['INDEX']
+        # drop index column
+        methylation_data_df=methylation_data_df.drop('INDEX',axis=1)
+        # move sample column to first column
+        methylation_data_df.insert(0, 'SAMPLE', methylation_data_df.pop('SAMPLE'))
+        # sort by sample value alone (e.g., HBCC_81925_FTX, then next sample)
+        methylation_data_df=methylation_data_df.sort_values(by=["SAMPLE"])
     # output matrix
     return(methylation_data_df)
     
@@ -165,15 +210,22 @@ parser.add_argument(
 # Add argument for haplotype 1 BED file
 parser.add_argument(
     "-h1", "--haplotype_1",
-    required=True,
+    required=False,
     help="Methylation BED file for the first haplotype (H1)."
 )
 
 # Add argument for haplotype 2 BED file
 parser.add_argument(
     "-h2", "--haplotype_2",
-    required=True,
+    required=False,
     help="Methylation BED file for the second haplotype (H2)."
+)
+
+# Add argument for unphased BED file
+parser.add_argument(
+    "-un", "--unphased",
+    required=False,
+    help="Methylation BED file for unphased methylation data (not separated into haplotypes)."
 )
 
 # Add argument for region prefix
@@ -200,32 +252,56 @@ parser.add_argument(
 
 # Parse the arguments
 args = parser.parse_args() 
-# import haplotype 1 methylation bed file
-# include period as NA value
-hap1_meth_bed=pd.read_csv(args.haplotype_1,sep="\t",na_values=['.'])
-# import haplotype 2 methylation bed file
-# include period as NA value
-hap2_meth_bed=pd.read_csv(args.haplotype_2,sep="\t",na_values=['.'])
-# filter out regions with missing information rate over parameter
-# default rate is 5% missing or less
-hap1_meth_bed=filter_regions_by_missing_info_rate(args.region_type,hap1_meth_bed,args.missing_info_rate)
-hap2_meth_bed=filter_regions_by_missing_info_rate(args.region_type,hap2_meth_bed,args.missing_info_rate)
-# rename methylation regions
-if (args.region_type=="CGI" or args.region_type=="GB"):
-    # rename haplotype 1 methylation regions
-    hap1_meth_bed_renamed=rename_methylation_regions(hap1_meth_bed,args.region_prefix)
-    # rename haplotype 2 methylation regions
-    hap2_meth_bed_renamed=rename_methylation_regions(hap2_meth_bed,args.region_prefix)
-elif (args.region_type=="PROM"):
-    # no need to rename either, so just assign new data frame with copy
-    hap1_meth_bed_renamed=hap1_meth_bed.copy()
-    hap2_meth_bed_renamed=hap2_meth_bed.copy()
-# outer join haplotype files
-joined_relabeled_hap_df=join_relabeled_haplotype_beds(args.region_type,hap1_meth_bed_renamed,hap2_meth_bed_renamed)
-# make methylation map
-output_methylation_map_df=make_methylation_map(args.region_type,joined_relabeled_hap_df)
-# make methylation data matrix
-output_methylation_data_df=make_methylation_data(args.region_type,joined_relabeled_hap_df)
+# check if either phased has both files provided or unphased has one provided
+if (args.unphased is None) and ((args.haplotype_1 is None) or (args.haplotype_2 is None)):
+    quit('ERROR: Not enough unphased (--unphased) or phased data (--haplotype_1 and --haplotype 2) provided!')
+# check if phased input
+if (args.unphased is None):
+    # import haplotype 1 methylation bed file
+    # include period as NA value
+    hap1_meth_bed=pd.read_csv(args.haplotype_1,sep="\t",na_values=['.'])
+    # import haplotype 2 methylation bed file
+    # include period as NA value
+    hap2_meth_bed=pd.read_csv(args.haplotype_2,sep="\t",na_values=['.'])
+    # filter out regions with missing information rate over parameter
+    # default rate is 5% missing or less
+    hap1_meth_bed=filter_regions_by_missing_info_rate(args.region_type,hap1_meth_bed,args.missing_info_rate)
+    hap2_meth_bed=filter_regions_by_missing_info_rate(args.region_type,hap2_meth_bed,args.missing_info_rate)
+    # rename methylation regions
+    if (args.region_type=="CGI" or args.region_type=="GB"):
+        # rename haplotype 1 methylation regions
+        hap1_meth_bed_renamed=rename_methylation_regions(hap1_meth_bed,args.region_prefix)
+        # rename haplotype 2 methylation regions
+        hap2_meth_bed_renamed=rename_methylation_regions(hap2_meth_bed,args.region_prefix)
+    elif (args.region_type=="PROM"):
+        # no need to rename either, so just assign new data frame with copy
+        hap1_meth_bed_renamed=hap1_meth_bed.copy()
+        hap2_meth_bed_renamed=hap2_meth_bed.copy()
+    # outer join haplotype files
+    joined_relabeled_hap_df=join_relabeled_haplotype_beds(args.region_type,hap1_meth_bed_renamed,hap2_meth_bed_renamed)
+    # make methylation map
+    output_methylation_map_df=make_methylation_map(args.region_type,joined_relabeled_hap_df)
+    # make methylation data matrix
+    output_methylation_data_df=make_methylation_data(args.region_type,True,joined_relabeled_hap_df)
+# run below if unphased input
+else:
+    unphased_meth_bed=pd.read_csv(args.unphased,sep="\t",na_values=['.'])
+    # filter out regions with missing information rate over parameter
+    # default rate is 5% missing or less
+    unphased_meth_bed=filter_regions_by_missing_info_rate(args.region_type,unphased_meth_bed,args.missing_info_rate)
+    # rename methylation regions
+    if (args.region_type=="CGI" or args.region_type=="GB"):
+        # rename haplotype 1 methylation regions
+        unphased_meth_bed_renamed=rename_methylation_regions(unphased_meth_bed,args.region_prefix)
+    elif (args.region_type=="PROM"):
+        # no need to rename either, so just assign new data frame with copy
+        unphased_meth_bed_renamed=unphased_meth_bed.copy()
+    # reformat methylation bed
+    reformatted_unphased_df=reformat_unphased_methylation_beds(args.region_type,unphased_meth_bed_renamed)
+    # make methylation map
+    output_methylation_map_df=make_methylation_map(args.region_type,reformatted_unphased_df)
+    # make methylation data matrix
+    output_methylation_data_df=make_methylation_data(args.region_type,False,reformatted_unphased_df)
 # export methylation map as csv
 output_methylation_map_df.to_csv(args.output_prefix+"_methylation_map.csv",index=False,header=True,na_rep="NA",chunksize=1000000)
 # export methylation data matrix as csv
