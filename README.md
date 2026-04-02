@@ -180,6 +180,47 @@ optional arguments:
   -m MISSING_INFO_RATE, --missing_info_rate MISSING_INFO_RATE
                         Filter out regions lacking methylation information for higher than this proportion of samples (default 0.05 or 5%).
 ```
+We have also recently added a cohort/population-wide aggregated methylation table processing script to the repository that filters for samples of interest, chromosomes of interest, and missing methylation rate per region, in addition to imputation of missing values with the mean per region and formatting for tensorQTL.
+```
+usage: filter_input_methylation_table.py [-h] --input_methylation_table INPUT_METHYLATION_TABLE [--output_methylation_table OUTPUT_METHYLATION_TABLE] [--reference_name REFERENCE_NAME] [--included_chromosomes INCLUDED_CHROMOSOMES]
+                                         [--excluded_chromosomes EXCLUDED_CHROMOSOMES] [--included_samples INCLUDED_SAMPLES] [--excluded_samples EXCLUDED_SAMPLES] [--na_definition NA_DEFINITION]
+                                         [--print_input_samples_and_chromosomes_only | --no-print_input_samples_and_chromosomes_only] [--print_output_samples_and_chromosomes | --no-print_output_samples_and_chromosomes]
+                                         [--impute_with_region_means | --no-impute_with_region_means] [--missing_methylation_rate_filter MISSING_METHYLATION_RATE_FILTER] [--clean_sample_names | --no-clean_sample_names]
+                                         [--tensorQTL_format | --no-tensorQTL_format]
+
+Filter input methylation tables (extended average methylation per region over regions and samples) by samples and chromosomes, amongst other features.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --input_methylation_table INPUT_METHYLATION_TABLE
+                        Path to input methylation table (methylation per sample per aggregated region).
+  --output_methylation_table OUTPUT_METHYLATION_TABLE
+                        Path to output methylation table after filtering (methylation per sample per aggregated region).
+  --reference_name REFERENCE_NAME
+                        Reference name used to separate sample from non-sample columns in table.
+  --included_chromosomes INCLUDED_CHROMOSOMES
+                        Chromosomes to include in output (list in text file, one chromosome per line).
+  --excluded_chromosomes EXCLUDED_CHROMOSOMES
+                        Chromosomes to exclude in output (list in text file, one chromosome per line).
+  --included_samples INCLUDED_SAMPLES
+                        Samples to include in output (list in text file, one chromosome per line).
+  --excluded_samples EXCLUDED_SAMPLES
+                        Samples to exclude in output (list in text file, one chromosome per line).
+  --na_definition NA_DEFINITION
+                        String definition of NA if not nan/NA/NAN/NaN (default is period).
+  --print_input_samples_and_chromosomes_only, --no-print_input_samples_and_chromosomes_only
+                        Print samples and chromosomes in input table to files (input_methylation_table.samples, .chromosomes) only and exit. (default: False)
+  --print_output_samples_and_chromosomes, --no-print_output_samples_and_chromosomes
+                        Print samples and chromosomes in output table to files (output_methylation_table.samples, .chromosomes) as well. (default: False)
+  --impute_with_region_means, --no-impute_with_region_means
+                        Impute N/A methylation values as mean per region (default false). (default: False)
+  --missing_methylation_rate_filter MISSING_METHYLATION_RATE_FILTER
+                        Remove region if more than this proportion of samples have no methylation calls; default 0.05.
+  --clean_sample_names, --no-clean_sample_names
+                        Output table with sample name only for sample columns (no _[reference]_modFraction). (default: False)
+  --tensorQTL_format, --no-tensorQTL_format
+                        Output table in tensorQTL phenotype BED format (chromosome/start/end/phenotype ID/samples). (default: False)
+```
 ## Genetic data
 Genetic data and maps are generated together in two steps. First, input SV or SNV VCF variant files from Napu are normalized to biallelic variants, subset by chromosome, and then converted to a CSV file with the necessary fields using bcftools query (`vcf_preprocess_for_genetic_data_map.sh`). Next, preprocessed CSV files are converted to per sample, per haplotype genetic data matrix and per variant genetic map files using `make_genetic_data_and_map.py`. Sample preprocessed data is included in the repository as example_sv_preprocess.csv and example_snv_preprocess.csv. Based on preliminary testing and available NIH HPC resources, we recommend parallelizing genetic map and data generation by chromosome. Tests on the HBCC cohort SNV VCF indicated chromosome 1 genetic map/data processing took 15 minutes on a 32GB RAM/32 CPU allocation. Example output genetic data are also provided as example_sv_data.csv and example_snv_data.csv.
 ```
