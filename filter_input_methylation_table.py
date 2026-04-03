@@ -51,6 +51,9 @@ def parse_args():
 def main():
     # Parse input command line arguments
     args = parse_args()
+    # print input and output files
+    print("Input methylation table:",args.input_methylation_table)
+    print("Output methylation table:",args.output_methylation_table)
     # load chromosomes to include to list from file
     if (args.included_chromosomes is not None):
         with open(args.included_chromosomes, 'r') as file:
@@ -103,9 +106,9 @@ def main():
     output_meth_table_df=input_meth_table_df.copy()
     # filter on chromosomes
     if (args.included_chromosomes is not None):
-        output_meth_table_df=output_meth_table_df[output_meth_table_df['#chrom'] in included_chromosome_list]
+        output_meth_table_df=output_meth_table_df[output_meth_table_df['#chrom'].isin(include_chromosome_list)]
     if (args.excluded_chromosomes is not None):
-        output_meth_table_df=output_meth_table_df[output_meth_table_df['#chrom'] not in excluded_chromosome_list]
+        output_meth_table_df=output_meth_table_df[~output_meth_table_df['#chrom'].isin(exclude_chromosome_list)]
     # filter on samples
     # first samples to include
     if (args.included_samples is not None):
