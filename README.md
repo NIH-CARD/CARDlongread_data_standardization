@@ -197,7 +197,7 @@ optional arguments:
   --output_methylation_table OUTPUT_METHYLATION_TABLE
                         Path to output methylation table after filtering (methylation per sample per aggregated region).
   --reference_name REFERENCE_NAME
-                        Reference name used to separate sample from non-sample columns in table.
+                        Reference name used to separate sample from non-sample columns in table (default GRCh38).
   --included_chromosomes INCLUDED_CHROMOSOMES
                         Chromosomes to include in output (list in text file, one chromosome per line).
   --excluded_chromosomes EXCLUDED_CHROMOSOMES
