@@ -21,7 +21,7 @@ def parse_args():
     # output methylation table
     parser.add_argument("--output_methylation_table", required=False, help="Path to output methylation table after filtering (methylation per sample per aggregated region).")
     # add reference name to find sample columns
-    parser.add_argument("--reference_name",required=False,default="GRCh38",help="Reference name used to separate sample from non-sample columns in table.")
+    parser.add_argument("--reference_name",required=False,default="GRCh38",help="Reference name used to separate sample from non-sample columns in table (default GRCh38).")
     # included chromosomes
     parser.add_argument("--included_chromosomes", required=False, help="Chromosomes to include in output (list in text file, one chromosome per line).")
     # excluded chromosomes
