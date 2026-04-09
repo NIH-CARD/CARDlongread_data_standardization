@@ -19,7 +19,7 @@ def parse_args():
     # specify prefix for output files
     parser.add_argument("--output_prefix", required=True, help="Specify prefix for output merged metadata/covariates/PCs file and covariate correlation heatmap.")
     # specify whether to transpose output for tensorQTL input
-    parser.add_argument("--tensorQTL_transpose",required=False,action=argparse.BooleanOptionalAction,default=False,help="Transpose joined output covariates, convert categorical variables to integer dummies, and output TSV file as required for tensorQTL input.")
+    parser.add_argument("--tensorQTL_transpose",required=False,action=argparse.BooleanOptionalAction,default=False,help="Convert categorical variables to integer dummies, transpose joined output covariates, and output TSV file as required for tensorQTL input.")
     # return arguments
     return parser.parse_args()
     
