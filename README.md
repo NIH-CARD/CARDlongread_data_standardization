@@ -137,6 +137,7 @@ optional arguments:
 ```
 ```
 usage: choose_pcs_join_metadata.py [-h] --input_metadata INPUT_METADATA --input_pcs INPUT_PCS [INPUT_PCS ...] --pc_counts PC_COUNTS [PC_COUNTS ...] --output_prefix OUTPUT_PREFIX
+                                   [--tensorQTL_transpose | --no-tensorQTL_transpose]
 
 Choose PCs from multiple input PC files and merge chosen PCs with metadata/covariates table.
 
@@ -150,6 +151,8 @@ optional arguments:
                         Number of PCs starting with PC1 to retain for input PC files, in order of inputs specified for --input_pcs.
   --output_prefix OUTPUT_PREFIX
                         Specify prefix for output merged metadata/covariates/PCs file and covariate correlation heatmap.
+  --tensorQTL_transpose, --no-tensorQTL_transpose
+                        Convert categorical variables to integer dummies, transpose joined output covariates, and output TSV file as required for tensorQTL input. (default: False)
 ```
 
 Genetic PCs can be generated from a MAF filtered variant file with plink through the following command, which keeps the first 20 PCs:
