@@ -18,6 +18,8 @@ def parse_args():
     parser.add_argument("--pc_counts", required=True, nargs="+", help="Number of PCs starting with PC1 to retain for input PC files, in order of inputs specified for --input_pcs.")
     # specify prefix for output files
     parser.add_argument("--output_prefix", required=True, help="Specify prefix for output merged metadata/covariates/PCs file and covariate correlation heatmap.")
+    # specify whether to transpose output for tensorQTL input
+    parser.add_argument("--tensorQTL_transpose",required=False,action=argparse.BooleanOptionalAction,default=False,help="Transpose joined output covariates and output TSV file as required for tensorQTL input.")
     # return arguments
     return parser.parse_args()
     
@@ -70,10 +72,25 @@ def main():
         input_pc_data_frame_list[idx]=pd.read_csv(i)
     # merge pc data frames with metadata data frame on SAMPLE column
     output_merged_metadata_pc_df=join_metadata_pc_tables(input_metadata_df,input_pc_data_frame_list,args.pc_counts)
-    # output merged metadata/pc data frame to file
-    output_merged_metadata_pc_df.to_csv(args.output_prefix + ".csv", index=False)
     # make covariate/PC correlation heatmap and save to file
     make_covariate_correlation_heatmap(output_merged_metadata_pc_df,args.output_prefix)
+    # check if tensorQTL output requested
+    if (args.tensorQTL_transpose is True):
+        print("Outputting transposed tab-delimited tensorQTL-formatted covariates table with integer dummy variables and sample names as header.")
+        # separate covariates
+        covariates = output_merged_metadata_pc_df.drop(columns=['SAMPLE'])
+        # convert categorical variables into dummies
+        non_numeric_cols = covariates.select_dtypes(include=['object', 'category']).columns
+        dummy_vars = pd.get_dummies(covariates[non_numeric_cols], drop_first=True, dtype=int)
+        # get numerical variables
+        numeric_vars = covariates.drop(columns=non_numeric_cols)
+        # remake metadata pc data frame
+        output_merged_metadata_pc_df_corrected = pd.concat([output_merged_metadata_pc_df[['SAMPLE']], numeric_vars, dummy_vars], axis=1)
+        output_merged_metadata_pc_df_corrected = output_merged_metadata_pc_df_corrected.set_index('SAMPLE').T
+        output_merged_metadata_pc_df_corrected.to_csv(args.output_prefix + ".tsv", sep="\t", index=True)
+    else:    
+        # output merged metadata/pc data frame to file
+        output_merged_metadata_pc_df.to_csv(args.output_prefix + ".csv", index=False)
     
 # run main subroutine
 if __name__ == "__main__":
