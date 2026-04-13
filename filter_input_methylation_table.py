@@ -38,12 +38,17 @@ def parse_args():
     parser.add_argument("--print_output_samples_and_chromosomes", required=False, action=argparse.BooleanOptionalAction, default=False, help="Print samples and chromosomes in output table to files (output_methylation_table.samples, .chromosomes) as well.")
     # impute mean values per region
     parser.add_argument("--impute_with_region_means", required=False, action=argparse.BooleanOptionalAction, default=False, help="Impute N/A methylation values as mean per region (default false).")
+    # impute missing data as zero values
     # filter out regions with more than 5% of samples missing
     parser.add_argument("--missing_methylation_rate_filter", required=False, type=float, default=0.05, help="Remove region if more than this proportion of samples have no methylation calls; default 0.05.")
     # remove reference_modFraction from sample names
     parser.add_argument("--clean_sample_names", required=False, action=argparse.BooleanOptionalAction, default=False, help="Output table with sample name only for sample columns (no _[reference]_modFraction).")
     # output in tensorQTL phenotype format
     parser.add_argument("--tensorQTL_format",required=False,action=argparse.BooleanOptionalAction,default=False,help="Output table in tensorQTL phenotype BED format (chromosome/start/end/phenotype ID/samples).")
+    # set phenotype id to chromosome_start_end
+    # parser.add_argument("--set_standard_phenotype_id",required=False,action=argparse.BooleanOptionalAction,default=False,help="Set phenotype ID to default (chr_start_end).")
+    # filter out duplicate phenotypes based on phenotype id
+    parser.add_argument("--remove_duplicate_regions_for_tensorQTL",required=False,action=argparse.BooleanOptionalAction,default=False,help="Only keep first non-null entry for duplicate regions from input table for tensorQTL output.")
     # return parsed arguments
     return parser.parse_args()
     
@@ -210,6 +215,11 @@ def main():
         # output_meth_table_tensorQTL_df['phenotype_id']=output_meth_table_df['#chrom']+"_"+output_meth_table_df['start']+"_"+output_meth_table_df['end']
         # set output_meth_table_df to output_meth_table_tensorQTL_df
         output_meth_table_df=pd.concat([output_meth_table_tensorQTL_df_bedcols,output_meth_table_tensorQTL_df],axis=1)
+        # if below option set upon running filter script, keep first non-null entry if duplicates present 
+        if (args.remove_duplicate_regions_for_tensorQTL is True):
+            output_meth_table_df=output_meth_table_df.groupby('phenotype_id').first()
+            # regions based on row count - no wait, output chromosome list
+            print("Total regions kept after removing duplicates:",output_meth_table_df.shape[0])
         # print(output_meth_table_df)
     # clean up sample names to sample name only, not with reference and modfraction suffix, if specified
     if (args.clean_sample_names is True):
