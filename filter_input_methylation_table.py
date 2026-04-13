@@ -217,7 +217,12 @@ def main():
         output_meth_table_df=pd.concat([output_meth_table_tensorQTL_df_bedcols,output_meth_table_tensorQTL_df],axis=1)
         # if below option set upon running filter script, keep first non-null entry if duplicates present 
         if (args.remove_duplicate_regions_for_tensorQTL is True):
-            output_meth_table_df=output_meth_table_df.groupby('phenotype_id').first()
+            output_meth_table_df=output_meth_table_df.groupby('phenotype_id',as_index=False).first()
+            # move phenotype_id back into fourth position
+            output_meth_phenotype_id=output_meth_table_df.pop('phenotype_id')
+            output_meth_table_df.insert(3, 'phenotype_id', output_meth_phenotype_id)
+            # sort output on first three columns (chr/start/end) if necessary
+            output_meth_table_df=output_meth_table_df.sort_values(by=['#chr','start','end'])
             # regions based on row count - no wait, output chromosome list
             print("Total regions kept after removing duplicates:",output_meth_table_df.shape[0])
         # print(output_meth_table_df)
