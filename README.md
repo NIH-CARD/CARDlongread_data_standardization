@@ -231,13 +231,15 @@ optional arguments:
 Genetic data and maps are generated together in two steps. First, input SV or SNV VCF variant files from Napu are normalized to biallelic variants, subset by chromosome, and then converted to a CSV file with the necessary fields using bcftools query (`vcf_preprocess_for_genetic_data_map.sh`). Next, preprocessed CSV files are converted to per sample, per haplotype genetic data matrix and per variant genetic map files using `make_genetic_data_and_map.py`. Sample preprocessed data is included in the repository as example_sv_preprocess.csv and example_snv_preprocess.csv. Based on preliminary testing and available NIH HPC resources, we recommend parallelizing genetic map and data generation by chromosome. Tests on the HBCC cohort SNV VCF indicated chromosome 1 genetic map/data processing took 15 minutes on a 32GB RAM/32 CPU allocation. Example output genetic data are also provided as example_sv_data.csv and example_snv_data.csv. We have also included a helper script to perform initial sample inclusion or exclusion, variant filtering, and LD pruning before preprocessing (`variant_initial_cleanup.sh`).
 ```
 Script for initial variant cleanup pre-allele specific QTL, using plink and bcftools. Splits multiallelic variants by default.
-Usage: variant_initial_cleanup.sh -i input_prefix -s sample_exclude_list -m maf_cutoff -g missing_genotype_rate -h hwe_pvalue -p indep_pairwise_ld_pruning_values
+Usage: variant_initial_cleanup.sh -i input_prefix -s sample_list -a sample_list_action -m maf_cutoff -g missing_genotype_rate -h hwe_pvalue -p indep_pairwise_ld_pruning_values -t threads
 	-i Input VCF file prefix
-	-s Path to list of samples to exclude
+	-s Path to list of samples to include or exclude
+	-a Action to take on sample list (either include or exclude)
 	-m Minor allele frequency (MAF) cutoff (default 0.05)
 	-g Missing genotype rate cutoff (default 0.05)
 	-h Hardy-Weinberg equilibrium p-value cutoff (default 0.001)
 	-p Independent pairwise LD pruning settings (default "1000 50 0.3"). Numbers indicate window, step size, and r2 value for indep-pairwise pruning.
+	-t Threads to use for bcftools decompression (default 0; plink uses all available CPUs.)
 ```
 ```
 Usage: vcf_preprocess_for_genetic_data_map.sh -v variant_type -c chromosome -i input.vcf(.gz) -o output.csv
