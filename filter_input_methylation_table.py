@@ -49,6 +49,8 @@ def parse_args():
     # parser.add_argument("--set_standard_phenotype_id",required=False,action=argparse.BooleanOptionalAction,default=False,help="Set phenotype ID to default (chr_start_end).")
     # filter out duplicate phenotypes based on phenotype id
     parser.add_argument("--remove_duplicate_regions_for_tensorQTL",required=False,action=argparse.BooleanOptionalAction,default=False,help="Only keep first non-null entry for duplicate regions from input table for tensorQTL output.")
+    # filter out duplicate phenotypes based on phenotype id
+    parser.add_argument("--remove_duplicate_regions",required=False,action=argparse.BooleanOptionalAction,default=False,help="Only keep first non-null entry for duplicate regions from input table for regular output.")
     # return parsed arguments
     return parser.parse_args()
     
@@ -226,8 +228,19 @@ def main():
             # regions based on row count - no wait, output chromosome list
             print("Total regions kept after removing duplicates:",output_meth_table_df.shape[0])
         # print(output_meth_table_df)
+    # remove duplicates if not tensorQTL format
+    if (args.remove_duplicate_regions is True):
+        # create false phenotype_id column for finding duplicates
+        output_meth_table_df['phenotype_id']=output_meth_table_df.iloc[:,0].astype(str)+"_"+output_meth_table_df.iloc[:,1].astype(str)+"_"+output_meth_table_df.iloc[:,2].astype(str)
+        output_meth_table_df=output_meth_table_df.groupby('phenotype_id',as_index=False).first()
+        # sort output on first three columns (chr/start/end) if necessary
+        # first three columns are always chromosome, start, and end
+        output_meth_table_df=output_meth_table_df.sort_values(by=list(output_meth_table_df.columns[:3]))
+        # regions based on row count - no wait, output chromosome list
+        print("Total regions kept after removing duplicates:",output_meth_table_df.shape[0])
     # clean up sample names to sample name only, not with reference and modfraction suffix, if specified
     if (args.clean_sample_names is True):
+        print("Removing reference name from sample names.")
         # nonsample columns do not have reference name in column name
         output_meth_table_nonsamples_df=output_meth_table_df[[item for item in output_meth_table_df.columns if args.reference_name not in item]]
         # sample columns have reference name in column name
