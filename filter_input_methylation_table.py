@@ -232,7 +232,7 @@ def main():
     if (args.remove_duplicate_regions is True):
         # create false phenotype_id column for finding duplicates
         output_meth_table_df['phenotype_id']=output_meth_table_df.iloc[:,0].astype(str)+"_"+output_meth_table_df.iloc[:,1].astype(str)+"_"+output_meth_table_df.iloc[:,2].astype(str)
-        output_meth_table_df=output_meth_table_df.groupby('phenotype_id',as_index=False).first()
+        output_meth_table_df=output_meth_table_df.groupby('phenotype_id').first()
         # sort output on first three columns (chr/start/end) if necessary
         # first three columns are always chromosome, start, and end
         output_meth_table_df=output_meth_table_df.sort_values(by=list(output_meth_table_df.columns[:3]))
