@@ -190,7 +190,7 @@ usage: filter_input_methylation_table.py [-h] --input_methylation_table INPUT_ME
                                          [--na_definition NA_DEFINITION] [--print_input_samples_and_chromosomes_only | --no-print_input_samples_and_chromosomes_only]
                                          [--print_output_samples_and_chromosomes | --no-print_output_samples_and_chromosomes] [--impute_with_region_means | --no-impute_with_region_means]
                                          [--missing_methylation_rate_filter MISSING_METHYLATION_RATE_FILTER] [--clean_sample_names | --no-clean_sample_names] [--tensorQTL_format | --no-tensorQTL_format]
-                                         [--remove_duplicate_regions_for_tensorQTL | --no-remove_duplicate_regions_for_tensorQTL]
+                                         [--remove_duplicate_regions_for_tensorQTL | --no-remove_duplicate_regions_for_tensorQTL] [--remove_duplicate_regions | --no-remove_duplicate_regions]
 
 Filter input methylation tables (extended average methylation per region over regions and samples) by samples and chromosomes, amongst other features.
 
@@ -226,6 +226,8 @@ optional arguments:
                         Output table in tensorQTL phenotype BED format (chromosome/start/end/phenotype ID/samples). (default: False)
   --remove_duplicate_regions_for_tensorQTL, --no-remove_duplicate_regions_for_tensorQTL
                         Only keep first non-null entry for duplicate regions from input table for tensorQTL output. (default: False)
+  --remove_duplicate_regions, --no-remove_duplicate_regions
+                        Only keep first non-null entry for duplicate regions from input table for regular output. (default: False)
 ```
 ## Genetic data
 Genetic data and maps are generated together in two steps. First, input SV or SNV VCF variant files from Napu are normalized to biallelic variants, subset by chromosome, and then converted to a CSV file with the necessary fields using bcftools query (`vcf_preprocess_for_genetic_data_map.sh`). Next, preprocessed CSV files are converted to per sample, per haplotype genetic data matrix and per variant genetic map files using `make_genetic_data_and_map.py`. Sample preprocessed data is included in the repository as example_sv_preprocess.csv and example_snv_preprocess.csv. Based on preliminary testing and available NIH HPC resources, we recommend parallelizing genetic map and data generation by chromosome. Tests on the HBCC cohort SNV VCF indicated chromosome 1 genetic map/data processing took 15 minutes on a 32GB RAM/32 CPU allocation. Example output genetic data are also provided as example_sv_data.csv and example_snv_data.csv. We have also included a helper script to perform initial sample inclusion or exclusion, variant filtering, and LD pruning before preprocessing (`variant_initial_cleanup.sh`).
